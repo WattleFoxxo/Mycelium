@@ -97,7 +97,6 @@ export class RadioConnectSetting extends Setting {
     _waitUntillSynced() {
         let connectingProgress;
         let syncingProgress;
-        let DeviceConnectionOverlay;
 
         connectingProgress = mdui.dialog({
             headline: "Connecting",
@@ -105,9 +104,11 @@ export class RadioConnectSetting extends Setting {
         });
 
         this.device.events.addEventListener("onStatus", (status) => {
-            if (status = Meshtastic.Types.DeviceStatusEnum.DeviceConnected) {
+            if (status == Meshtastic.Types.DeviceStatusEnum.DeviceConnected) {
                     console.log("checking device connection");
+                    
                     if (connectingProgress.open == false) return;
+                    
                     console.log("device not connected");
                     connectingProgress.open = false;
                     syncingProgress.open = false;
