@@ -8,5 +8,5 @@
 - [Meshtastic JS Docs](https://js.meshtastic.org/)
 
 ### Deployments
-- [Slippy Main](https://slippy.wattlefoxxo.com/)
-- [Slippy Dev](https://slippydev.wattlefoxxo.com/)
+- [Slippy Main](https://slippy.wattlefoxxo.au/)
+- [Slippy Dev](https://slippydev.wattlefoxxo.au/)
