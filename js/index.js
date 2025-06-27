@@ -4,12 +4,15 @@ import { Router } from "./modules/router.js";
 import { NotificationManager } from "./modules/notifications.js";
 import { AppStorage } from "./modules/utils/storage.js";
 import { SettingsManager, Setting } from "./modules/settings.js";
+import { DebugManager } from "./modules/debug.js";
+import { UserscriptManager } from "./modules/userscirpt.js";
 
 import { NodesRoute } from "./routes/nodes.js";
 import { ChannelsRoute } from "./routes/channels.js";
 import { MessageRoute } from "./routes/message.js";
 import { MapsRoute } from "./routes/maps.js";
 import { SettingsRoute } from "./routes/settings.js";
+import { DebugRoute } from "./routes/settings/debug.js";
 
 import { ThemeSetting } from "./modules/settings/mduiSettings.js";
 import { ColourThemeSetting } from "./modules/settings/mduiSettings.js";
@@ -21,7 +24,17 @@ let messageManager = new MessageManager(meshDevice);
 let pageRouter = new Router();
 let notificationManager = new NotificationManager(meshDevice);
 let settingsManager = new SettingsManager("settings");
+let debugManager = new DebugManager();
 
+let userscriptManager = new UserscriptManager({ // LOAD USERSCRIPTS LAST!
+    "meshDevice": meshDevice,
+    "messageManager": messageManager,
+    "pageRouter": pageRouter,
+    "notificationManager": notificationManager,
+    "settingsManager": settingsManager
+}, settingsManager);
+
+debugManager.init();
 meshDevice.init();
 
 pageRouter.registerRoute(new NodesRoute(meshDevice));
@@ -29,6 +42,7 @@ pageRouter.registerRoute(new ChannelsRoute(meshDevice));
 pageRouter.registerRoute(new MapsRoute(meshDevice, pageRouter));
 pageRouter.registerRoute(new MessageRoute(meshDevice, pageRouter, messageManager));
 pageRouter.registerRoute(new SettingsRoute(settingsManager));
+pageRouter.registerRoute(new DebugRoute(settingsManager, userscriptManager));
 
 settingsManager.registerSetting(new ThemeSetting());
 settingsManager.registerSetting(new ColourThemeSetting());
@@ -41,6 +55,8 @@ document.getElementById("index.quick-menu.refresh").addEventListener("click", ()
 settingsManager.init();
 pageRouter.navigateTo("messages");
 
+notificationManager.requestPermission();
+
 let hasHost = settingsManager.hasItem("device.hostname");
 let hasTLS = settingsManager.hasItem("device.tls");
 if (hasHost && hasTLS) {
@@ -48,6 +64,8 @@ if (hasHost && hasTLS) {
     let tls = settingsManager.getItem("device.tls");
     meshDevice.connectHttp(hostname, 3000, false, tls);
 }
+
+userscriptManager.init()
 
 if ("serviceWorker" in navigator) {
     await navigator.serviceWorker.register("service-worker.js", {

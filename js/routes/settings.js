@@ -25,13 +25,11 @@ export class SettingsRoute extends Route {
                 if (element.value.length <= 0) {
                     element.value = element.defaultValue;
                     
-                    // i dont know why this is fucking nesersary but it wont work any other way
-                    // if i continue to be a programmer i WILL become an alcaholic
                     setTimeout(() => {
                         Array.from(element.children).forEach((child) => {
                             if (child.value == element.value) child.setAttribute("selected", true); 
                         });
-                    }, 0); // why tf do i need a 0 ms delay for this to work 💀
+                    }, 0);
 
                     return false;
                 }

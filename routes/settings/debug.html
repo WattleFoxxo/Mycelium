@@ -1,0 +1,113 @@
+<div id="index.page-settings"
+    page-title="Debug"
+    back-button-url="#settings"
+    has-back-button
+></div>
+
+<style>
+    .settings-list h2, h3 {
+        margin: 10px;
+    }
+
+    .settings-list div {
+        padding: 10px;
+    }
+
+    .debug-logs {
+        border: 1px solid rgb(var(--mdui-color-inverse-surface));
+        border-radius: var(--mdui-shape-corner-extra-small);
+        display: flex;
+        height: 300px;
+        overflow: scroll;
+        font-family: monospace;
+    }
+
+    .debug-logs-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    .debug-logs-list li {
+        margin: 0;
+        padding: 8px 0;
+        border-bottom: 1px solid rgb(var(--mdui-color-inverse-surface));
+    }
+
+    .debug-logs-list li:last-child {
+        border-bottom: none;
+    }
+
+    .userscript-box::part(input) {
+        font-family: monospace;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+    }
+</style>
+
+<mdui-dialog
+  close-on-overlay-click
+  close-on-esc
+  headline="Debug settings are experimental!"
+  class="example-action"
+  open
+  id="settings.debug.dialog"
+>
+    <p slot="description">Things <b>WILL</b> break if you dont know what your doing.</p>
+    <mdui-button slot="action" variant="text" id="settings.debug.dialog-close">Enable ghoul mode</mdui-button>
+    <mdui-button slot="action" variant="tonal" href="#settings">Go back</mdui-button>
+</mdui-dialog>
+
+<div id="index.page-body" class="page-body">
+    <mdui-list id="settings.setting-list" class="settings-list">
+        <h3>Debug settings are experimental, things WILL break if you dont know what your doing.</h3>
+
+        <br><h2>Scripting</h2>
+        <div>
+            <mdui-text-field
+                id="settings.debug.userscript"
+                class="userscript-box"
+                rows="6"
+                label="Userscript"
+                autocapitalize="none"
+            ></mdui-text-field>
+        </div>
+
+        <div>
+            <mdui-button
+                id="settings.debug.save-userscript"
+                class="setting"
+                variant="outlined"
+                full-width
+            >Save</mdui-button>
+        </div>
+        <div>
+            <mdui-button
+                id="settings.debug.reload-userscript"
+                class="setting"
+                variant="outlined"
+                full-width
+            >Reload Userscript</mdui-button>
+        </div>
+
+        <br><h2>Logs</h2>
+        <div>
+            <div id="settings.debug.logs" class="debug-logs">
+                <template id="settings.debug.logs.template">
+                    <li id="_template.item"></li>
+                </template>
+                <ul id="settings.debug.logs.list" class="debug-logs-list"></ul>
+            </div>
+        </div>
+
+        <div>
+            <mdui-button
+                id="settings.debug.clear-logs"
+                class="setting"
+                variant="outlined"
+                full-width
+            >Clear Logs</mdui-button>
+        </div>
+    </mdui-list>
+</div>

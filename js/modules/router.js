@@ -61,7 +61,7 @@ export class Router {
     }
 
     async _fetchHtmlContent(file) {
-        let response = await fetch(`/routes/${file}`);
+        let response = await fetch(`routes/${file}`);
 
         if (!response.ok) {
             console.error("Failed to fetch HTML content.");

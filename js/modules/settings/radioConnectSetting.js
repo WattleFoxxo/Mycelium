@@ -19,6 +19,7 @@ export class RadioConnectSetting extends Setting {
                 <mdui-radio ${navigator.serial ? "" : "disabled"} value="serial">Serial</mdui-radio>
             </mdui-radio-group>
             `,
+            id: "mdui-connect-to-device",
             actions: [
                 {
                     text: "Cancel",
@@ -103,23 +104,16 @@ export class RadioConnectSetting extends Setting {
         });
 
         this.device.events.addEventListener("onStatus", (status) => {
-            switch(status) {
-                case Meshtastic.Types.DeviceStatusEnum.DeviceConnected:
-                    if (connectingProgress.open == false) break;
+            if (status == Meshtastic.Types.DeviceStatusEnum.DeviceConnected) {
+                    console.log("checking device connection");
                     
+                    if (connectingProgress.open == false) return;
+                    
+                    console.log("device not connected");
                     connectingProgress.open = false;
-
-                    syncingProgress = mdui.dialog({
-                        headline: "Connecting",
-                        body: `<mdui-button loading variant="text" style="color: rgb(var(--mdui-color-on-surface));" full-width>Syncing with device.</mdui-button>`,
-                    });
-            
-                    break
-                case Meshtastic.Types.DeviceStatusEnum.DeviceConfigured:
                     syncingProgress.open = false;
-                    document.getElementById("settings.radio.connect").setAttribute("disabled", "true");
 
-                    break
+
             }
         });
     };
