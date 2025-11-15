@@ -1,0 +1,17 @@
+html, body {
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    
+    font-family: Roboto, Noto Sans, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial;
+}
+
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.app-content {    
+    overflow: auto;
+}
