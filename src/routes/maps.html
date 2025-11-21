@@ -3,4 +3,58 @@
     backbutton="false"
     navbar="true"
     titlebar="true"
->
+></route-settings>
+
+<style>
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    #nodeMarkerLabel {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .node-marker {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .node-marker mdui-card {
+        margin-top: 3px;
+    }
+    
+    .node-marker-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px;
+        padding-bottom: 4px;
+        padding-top: 4px;
+        padding-right: 8px;
+        white-space: nowrap;
+        width: fit-content;
+    }
+
+    .node-marker-label mdui-icon {
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+<template id="nodeMarkerTemplate">
+    <div id="nodeMarker" class="node-marker">
+        <mdui-avatar id="nodeMarkerAvatar"></mdui-avatar>
+        <mdui-card variant="filled">
+            <div class="node-marker-label">
+                <mdui-icon name="cell_tower" id="nodeMarkerIcon" class="material-symbols-outlined"></mdui-icon>
+                <div id="nodeMarkerLabel"></div>
+            </div>
+        </mdui-card>
+    </div>
+</template>
+
+<div id="map"></div>

@@ -1,0 +1,50 @@
+<route-settings
+    title="Mycelium"
+    backbutton="false"
+    navbar="true"
+    titlebar="true"
+></route-settings>
+
+<style>
+    .contact-sub-text {
+        font-size: var(--mdui-typescale-label-small-size);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .contact-sub-text div {
+        line-height: 1.5;
+        color: rgb(var(--mdui-color-on-surface-variant));
+        text-align: center;
+    }
+
+    .contact-sub-text mdui-icon {
+        font-size: large;
+        line-height: 1.5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+</style>
+
+<template id="contactTemplate">
+    <mdui-list-item>
+        <mdui-avatar id="contactAvatar" slot="icon"></mdui-avatar>
+        <div id="contactName"></div>
+        <div class="contact-sub-text">
+            <mdui-icon name="cell_tower" id="contactTypeIcon" class="material-symbols-outlined contact-type-icon"></mdui-icon>
+            <div id="contactSubText" class="contact-sub"></div>
+        </div>
+        <mdui-dropdown slot="end-icon">
+            <mdui-button-icon icon="more_vert" slot="trigger"></mdui-button-icon>
+            <mdui-menu></mdui-menu>
+        </mdui-dropdown>
+    </mdui-list-item>
+</template>
+
+<mdui-list id="contactList">
+
+</mdui-list>
+

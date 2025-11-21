@@ -5,44 +5,70 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"/>
         <meta name="renderer" content="webkit"/>
 
+        <!-- MDUI -->
         <link rel="stylesheet" href="./assets/css/style.css"/>
-        <link rel="stylesheet" href="https://unpkg.com/mdui@2/mdui.css"/>
+        <link rel="stylesheet" href="./scripts/libs/mdui/mdui.css"/>
+
+        <!-- Icons -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
 
+
+        <link rel="stylesheet" href="./scripts/libs/leaflet/leaflet.css"/>
+        <script src="./scripts/libs/leaflet/leaflet.js"></script>
+
         <title>Mycelium</title>
     </head>
-    <body class="mdui-theme-dark">
+    <body>
         <div class="app-shell">
-            <mdui-top-app-bar id="titleBar" scroll-behavior="elevate">
-                <mdui-button-icon id="backButton" icon="arrow_back"></mdui-button-icon>
-                <mdui-top-app-bar-title id="appTitle">Mycelium</mdui-top-app-bar-title>
+            <div class="title-bar-continer">
+                <mdui-top-app-bar id="titleBar" class="title-bar" scroll-behavior="elevate">
+                    <mdui-button-icon id="backButton" icon="arrow_back"></mdui-button-icon>
+                    <mdui-top-app-bar-title id="appTitle">
+                        Mycelium
+                    </mdui-top-app-bar-title>
 
-                <div style="flex-grow: 1"></div>
+                    <div style="flex-grow: 1"></div>
 
-                <mdui-tooltip disabled id="radioIndercatorTooltip" content="No device connected">
-                    <mdui-chip disabled id="radioIndercator" style="margin-top: 4px; margin-right: 5px;">
-                        <div id="radioIndercatorName">No device</div>
-                        <mdui-icon slot="end-icon" id="radioIndercatorIcon" class="material-symbols-outlined" name="signal_disconnected"></mdui-icon>
+                    <mdui-chip disabled id="radioIndercator" href="#settings" style="margin-top: 4px; margin-right: 5px;">
+                        <div id="radioIndercatorName">Disconnected</div>
+                        <!-- <mdui-icon slot="end-icon" id="radioIndercatorIcon" class="material-symbols-outlined" name="signal_disconnected"></mdui-icon> -->
                     </mdui-chip>
-                </mdui-tooltip>
 
-                <mdui-dropdown>
-                    <mdui-button-icon icon="more_vert" slot="trigger"></mdui-button-icon>
-                    <mdui-menu>
-                        <mdui-menu-item id="connectButton">Connect</mdui-menu-item>
-                        <mdui-menu-item id="refreshButton">Refresh</mdui-menu-item>
-                    </mdui-menu>
-                </mdui-dropdown>
-            </mdui-top-app-bar>
+                    <mdui-dropdown>
+                        <mdui-button-icon icon="more_vert" slot="trigger"></mdui-button-icon>
+                        <mdui-menu>
+                            <mdui-menu-item id="refreshButton">Refresh</mdui-menu-item>
+                        </mdui-menu>
+                    </mdui-dropdown>
+                </mdui-top-app-bar>
+            </div>
             
             <div id="appContent" class="app-content"></div>
 
-            <mdui-navigation-bar hidden id="navBar" class="app-nav" value="messages">
-                <mdui-navigation-bar-item icon="chat_bubble_outline" href="#messages" value="messages" spa-router>Messages</mdui-navigation-bar-item>
-                <mdui-navigation-bar-item icon="map" href="#maps" value="maps" spa-router>Maps</mdui-navigation-bar-item>
-                <mdui-navigation-bar-item icon="settings" href="#settings" value="settings" spa-router>Settings</mdui-navigation-bar-item>
-            </mdui-navigation-bar>
+            <div class="nav-bar-continer">
+                <mdui-navigation-bar hidden id="navBar" class="nav-bar" value="messages">
+                    <mdui-navigation-bar-item href="#contacts" value="contacts" spa-router>
+                        <mdui-icon name="person" slot="icon" class="material-symbols-outlined"></mdui-icon>
+                        Contacts
+                    </mdui-navigation-bar-item>
+
+                    <mdui-navigation-bar-item href="#chats" value="chats" spa-router>
+                        <mdui-icon name="chat" slot="icon" class="material-symbols-outlined"></mdui-icon>
+                        Chats
+                    </mdui-navigation-bar-item>
+
+                    <mdui-navigation-bar-item href="#maps" value="maps" spa-router>
+                        <mdui-icon name="map" slot="icon" class="material-symbols-outlined"></mdui-icon>
+                        Map
+                    </mdui-navigation-bar-item>
+
+                    <mdui-navigation-bar-item href="#settings" value="settings" spa-router>
+                        <mdui-icon name="settings" slot="icon" class="material-symbols-outlined"></mdui-icon>
+                        Settings
+                    </mdui-navigation-bar-item>
+                </mdui-navigation-bar>
+            </div>
         </div>
 
         <script type="module" src="./scripts/index.js"></script>

@@ -12,6 +12,27 @@ html, body {
     height: 100vh;
 }
 
+.title-bar-continer {
+    top: 0;
+    right: 0;
+    left: 0;
+}
+
+.title-bar {
+    position: relative;
+}
+
 .app-content {    
-    overflow: auto;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.nav-bar-continer {
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.nav-bar {
+    position: relative;
 }
