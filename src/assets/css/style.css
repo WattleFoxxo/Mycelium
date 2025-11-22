@@ -36,3 +36,7 @@ html, body {
 .nav-bar {
     position: relative;
 }
+
+mdui-avatar {
+    color: white;
+}

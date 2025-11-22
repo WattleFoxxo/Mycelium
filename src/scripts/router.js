@@ -69,4 +69,6 @@ export class Router {
 }
 
 window.addEventListener("hashchange", Router.handleRoute, true);
-Router.navagateTo("contacts");
+Router.handleRoute();
+
+// Router.navagateTo("contacts");

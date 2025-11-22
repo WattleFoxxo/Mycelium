@@ -1,24 +1,39 @@
 import { app } from "../index.js";
 import { setTheme, setColorScheme } from "../libs/mdui/mdui.js";
+import { SimpleDB } from "../storage.js";
 
 export default class Settings {
-    static init() {
-        this.createRadioSelections();
+    static settingsStore;
+
+    static async init() {
+        this.settingsStore = new SimpleDB("settings");
+
+        console.log(app);
+        this.handleConnectionChange();
 
         document.getElementById("connectRadio").addEventListener("click", () => app.requestSerialConnection());
-        document.getElementById("themeRadio").addEventListener("change", (event) => this.handleThemeChange(event.target.value));
+
+        document.getElementById("theme").addEventListener("change", (event) => this.handleThemeChange(event.target.value));
         document.getElementById("colourScheme").addEventListener("change", (event) => this.handleColourSchemeChange(event.target.value));
 
-        document.getElementById("themeRadio").value = app.theme ?? document.getElementById("themeRadio").value; // HACK
-        document.getElementById("colourScheme").value = app.colourScheme ?? document.getElementById("colourScheme").value; // HACK
+        document.getElementById("theme").value = await this.settingsStore.get("theme");
+        document.getElementById("colourScheme").value = await this.settingsStore.get("colourScheme");
+
+        app.device?.on("connected", () => this.handleConnectionChange());
+        app.device?.on("disconnected", () => this.handleConnectionChange());
     }
 
-    static handleThemeChange(value) {
-        app.theme = value; // HACK
+    static async handleConnectionChange() {
+        document.getElementById("connectRadio").disabled = !!app.device;
+    }
+
+
+    static async handleThemeChange(value) {
+        await this.settingsStore.set("theme", value);
         setTheme(value);
     }
 
-    static handleColourSchemeChange(value) {
+    static async handleColourSchemeChange(value) {
         const colourSchemes = {
             "red": "#ffb3a9",
             "purple": "#f9aaff",
@@ -26,8 +41,8 @@ export default class Settings {
             "green": "#77db76",
             "yellow": "#dac812"
         }
-
-        app.colourScheme = value; // HACK
+        
+        await this.settingsStore.set("colourScheme", value);
         setColorScheme(colourSchemes[value]);
     }
 

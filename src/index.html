@@ -13,7 +13,6 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
 
-
         <link rel="stylesheet" href="./scripts/libs/leaflet/leaflet.css"/>
         <script src="./scripts/libs/leaflet/leaflet.js"></script>
 
@@ -35,10 +34,17 @@
                         <!-- <mdui-icon slot="end-icon" id="radioIndercatorIcon" class="material-symbols-outlined" name="signal_disconnected"></mdui-icon> -->
                     </mdui-chip>
 
-                    <mdui-dropdown>
+                    <mdui-dropdown stay-open-on-click>
                         <mdui-button-icon icon="more_vert" slot="trigger"></mdui-button-icon>
-                        <mdui-menu>
+                        <mdui-menu submenu-trigger="click">
                             <mdui-menu-item id="refreshButton">Refresh</mdui-menu-item>
+                            <mdui-menu-item submenu>
+                                Advert
+                                <mdui-menu-item id="advertZeroHotButton" slot="submenu">Zero Hop</mdui-menu-item>
+                                <mdui-menu-item id="advertButton" slot="submenu">Flood</mdui-menu-item>
+                                <mdui-menu-item id="advertButton" slot="submenu">Clipboard</mdui-menu-item>
+                            </mdui-menu-item>
+                            <mdui-menu-item href="#settings?foucus=about">About</mdui-menu-item>
                         </mdui-menu>
                     </mdui-dropdown>
                 </mdui-top-app-bar>
