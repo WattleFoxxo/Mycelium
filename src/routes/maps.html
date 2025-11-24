@@ -43,6 +43,16 @@
         display: flex;
         align-items: center;
     }
+
+    .fab-buttons {
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        bottom: 100px;
+        right: 20px;
+        z-index: 100000;
+    }
 </style>
 
 <template id="nodeMarkerTemplate">
@@ -56,5 +66,21 @@
         </mdui-card>
     </div>
 </template>
+
+<div class="fab-buttons">
+    <mdui-dropdown stay-open-on-click placement="left-end">
+        <mdui-fab id="filterButton" slot="trigger" variant="surface" icon="filter_list"></mdui-fab>
+        <mdui-card class="multi-dropdown">
+            <mdui-list id="filterList" checbox-list value="pinned,users,roomservers,repeaters">
+                <mdui-list-subheader>Filter</mdui-list-subheader>
+                <mdui-list-item disabled icon="check_box_outline_blank" value="pinned">Pinned</mdui-list-item>
+                <mdui-list-item icon="check_box_outline_blank" value="users">Users</mdui-list-item>
+                <mdui-list-item icon="check_box_outline_blank" value="roomservers">Room Servers</mdui-list-item>
+                <mdui-list-item icon="check_box_outline_blank" value="repeaters">Repeaters</mdui-list-item>
+            </mdui-list>
+        </mdui-card>
+    </mdui-dropdown>
+</div>
+
 
 <div id="map"></div>

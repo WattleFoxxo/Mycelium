@@ -11,7 +11,7 @@ export default class Settings {
         console.log(app);
         this.handleConnectionChange();
 
-        document.getElementById("connectRadio").addEventListener("click", () => app.requestSerialConnection());
+        document.getElementById("connectRadio").addEventListener("click", () => this.connectDissconnectRadio());
 
         document.getElementById("theme").addEventListener("change", (event) => this.handleThemeChange(event.target.value));
         document.getElementById("colourScheme").addEventListener("change", (event) => this.handleColourSchemeChange(event.target.value));
@@ -23,8 +23,19 @@ export default class Settings {
         app.device?.on("disconnected", () => this.handleConnectionChange());
     }
 
+    static async connectDissconnectRadio() {
+        if (app.isConnected) {
+            app.disconnect();
+            
+            return;
+        }
+
+        app.requestSerialConnection();
+    }
+
     static async handleConnectionChange() {
-        document.getElementById("connectRadio").disabled = !!app.device;
+        document.getElementById("connectRadioIcon").setAttribute("name", app.isConnected ? "signal_disconnected" : "bigtop_updates");
+        document.getElementById("connectRadioTitle").innerText = app.isConnected ? "Disonnect Device" : "Connect Device";
     }
 
 

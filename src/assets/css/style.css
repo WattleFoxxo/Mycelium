@@ -40,3 +40,33 @@ html, body {
 mdui-avatar {
     color: white;
 }
+
+.hidden {
+    display: none !important;
+}
+
+.pageNotice {
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    flex-direction: column;
+    text-align: center;
+    gap: 4px;
+
+    color: rgba(var(--mdui-color-on-surface), 38%);
+}
+
+.multi-dropdown {
+    background-color: rgb(var(--mdui-color-surface-container));
+    border-radius: var(--shape-corner);
+    box-shadow: var(--mdui-elevation-level2);
+}
+
+.multi-dropdown mdui-menu {
+    background-color: none;
+    border-radius: none;
+    box-shadow: none;
+}

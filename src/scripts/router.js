@@ -1,63 +1,96 @@
+import { CustomElements } from "./customElements.js";
+
 export class Router {
+    static homeLocation = "#contacts";
+
     static handleRoute() {
-        Router.loadPage(location.hash.slice(1));
+        const hash = location.hash.slice(1);
+        const [route, queryString] = hash.split("?");
+        const params = this.parseQuery(queryString);
+
+        this.loadPage(route, params);
     }
 
-    static navagateTo(route) {
-        location.hash = `#${route}`;
+    static navagateTo(route, params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        location.hash = `#${route}${queryString ? "?" + queryString : ""}`;
 
-        Router.handleRoute();
+        this.handleRoute();
     }
 
-    static async loadPage(route) {
-        if (Router.currentRouteModule?.cleanup) {
-            Router.currentRouteModule.cleanup();
+    static parseQuery(queryString) {
+        if (!queryString) return {};
+        return Object.fromEntries(new URLSearchParams(queryString));
+    }
+
+    static async loadPage(route, params = {}) {
+        if (this.currentRouteModule?.cleanup) {
+            this.currentRouteModule.cleanup();
         }
 
         const responcse = await fetch(`/routes/${route}.html`);
-
         if (!responcse.ok) {
             if (route == "error") throw new Error("/routes/error.html is missing!", );
-
-            Router.panic(`Fetch error: 404 Not found\nCould not fetch "/routes/${route}.html"`);
+            this.panic(`Fetch error: 404 Not found\nCould not fetch "/routes/${route}.html"`);
             return;
         }
 
         const htmlString = await responcse.text();
         const appContent = document.getElementById("appContent");
-        
         appContent.innerHTML = htmlString;
         
         // Apply route settings
         const routeSettings = document.querySelector("route-settings");
         
-        document.getElementById("backButton").href = routeSettings.getAttribute("backbutton");
-        document.getElementById("appTitle").innerText = routeSettings.getAttribute("title");
+        if (routeSettings) {
+            const backButton = document.getElementById("backButton");
+            const navBar = document.getElementById("navBar");
+            const titleBar = document.getElementById("titleBar");
 
-        document.getElementById("navBar").style = "";
-        document.getElementById("titleBar").style = "";
-        document.getElementById("backButton").style = "";
+            this.setTitle(routeSettings.getAttribute("title") || "");
 
-        if (routeSettings.getAttribute("navbar") == "false") document.getElementById("navBar").style = "display: none;";
-        if (routeSettings.getAttribute("titlebar") == "false") document.getElementById("titleBar").style = "display: none;";
-        if (routeSettings.getAttribute("backbutton") == "false") document.getElementById("backButton").style = "display: none;";
-        
+            if (navBar) navBar.style = routeSettings.getAttribute("navbar") === "false" ? "display: none;" : "";
+            if (titleBar) titleBar.style = routeSettings.getAttribute("titlebar") === "false" ? "display: none;" : "";
+            
+            if (routeSettings.getAttribute("backbutton") === "false") {
+                backButton.classList.add("hidden");
+            } else if (routeSettings.getAttribute("backbutton") === "true") {
+                // Normal back button
+                backButton.classList.remove("hidden");
+                backButton.href = null;
+            } else {
+                // Custom back button
+                backButton.classList.remove("hidden");
+                backButton.href = routeSettings.getAttribute("backbutton") || homeLocation;
+            }
+        }
+
         try {
             const module = await import(`/scripts/routes/${route}.js`);
-            
-            Router.currentPageModule = module.default;
-            Router.currentPageModule.init();
+            this.currentPageModule = module.default;
+            this.currentPageModule.init?.(params);
         } catch (error) {
             console.warn(`No JS module for ${route}`, error);
         }
 
-        document.getElementById("navBar").value = route;
+        const navBar = document.getElementById("navBar");
+        if (navBar) navBar.value = route;
+
+        CustomElements.init();
+    }
+
+    static navagateBack() {
+        window.history.back();
+    }
+
+    static setTitle(title) {
+        document.getElementById("appTitle").innerText = title;
     }
 
     static async panic(log) {
 
         try {
-            await Router.loadPage("error");
+            await this.loadPage("error");
 
             console.error(log);
 
@@ -68,7 +101,8 @@ export class Router {
     }
 }
 
-window.addEventListener("hashchange", Router.handleRoute, true);
+window.addEventListener("hashchange", () => Router.handleRoute(), true);
+
 Router.handleRoute();
 
 // Router.navagateTo("contacts");

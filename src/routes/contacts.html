@@ -27,24 +27,96 @@
         justify-content: center;
     }
 
+    .fab-buttons {
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        bottom: 100px;
+        right: 20px;
+        z-index: 100000;
+    }
+
+    #contactList {
+        margin-bottom: 10rem;
+    }
+
+    mdui-dropdown[slot="end-icon"] {
+    pointer-events: auto;  /* dropdown itself is clickable */
+}
+
+mdui-dropdown[slot="end-icon"]::part(trigger) {
+    pointer-events: auto;  /* if using shadow DOM parts */
+}
+
+/* Ensure underlying elements don't receive pointer events while dropdown is open */
+mdui-dropdown[slot="end-icon"].mdui-dropdown-open ~ * {
+    pointer-events: none;
+}
 </style>
 
 <template id="contactTemplate">
-    <mdui-list-item>
+    <mdui-list-item id="listItem">
         <mdui-avatar id="contactAvatar" slot="icon"></mdui-avatar>
+        
         <div id="contactName"></div>
+
         <div class="contact-sub-text">
             <mdui-icon name="cell_tower" id="contactTypeIcon" class="material-symbols-outlined contact-type-icon"></mdui-icon>
             <div id="contactSubText" class="contact-sub"></div>
         </div>
+
         <mdui-dropdown slot="end-icon">
-            <mdui-button-icon icon="more_vert" slot="trigger"></mdui-button-icon>
-            <mdui-menu></mdui-menu>
+            <mdui-button-icon id="moreButton" icon="more_vert" slot="trigger"></mdui-button-icon>
+            <mdui-menu>
+                <mdui-list-item id="detailsButton">
+                    <mdui-icon name="person" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                    Details
+                </mdui-list-item>
+                <mdui-list-item radio-only id="pingButton">
+                    <mdui-icon name="network_ping" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                    Ping
+                </mdui-list-item>
+                <mdui-list-item id="viewOnMapButton">
+                    <mdui-icon name="location_searching" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                    View On Map
+                </mdui-list-item>
+                <mdui-list-item radio-only id="deleteButton">
+                    <mdui-icon name="delete" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                    Delete Contact
+                </mdui-list-item>
+            </mdui-menu>
         </mdui-dropdown>
     </mdui-list-item>
 </template>
 
-<mdui-list id="contactList">
+<div class="fab-buttons">
+    <mdui-dropdown stay-open-on-click placement="left-end">
+        <mdui-fab id="filterButton" slot="trigger" variant="surface" icon="filter_list"></mdui-fab>
+        <mdui-card class="multi-dropdown">
+            <mdui-list id="sortByList" radio-list value="recent">
+                <mdui-list-subheader>Order</mdui-list-subheader>
+                <mdui-list-item icon="radio_button_unchecked" value="name">Name</mdui-list-item>
+                <mdui-list-item icon="radio_button_unchecked" value="recent">Recent</mdui-list-item>
+                <mdui-list-item icon="radio_button_unchecked" value="advert">Last Advert</mdui-list-item>
+            </mdui-list>
 
-</mdui-list>
+            <mdui-list id="filterList" checbox-list value="pinned,users,roomservers,repeaters">
+                <mdui-list-subheader>Filter</mdui-list-subheader>
+                <mdui-list-item disabled icon="check_box_outline_blank" value="pinned">Favorite</mdui-list-item>
+                <mdui-list-item icon="check_box_outline_blank" value="users">Users</mdui-list-item>
+                <mdui-list-item icon="check_box_outline_blank" value="roomservers">Room Servers</mdui-list-item>
+                <mdui-list-item icon="check_box_outline_blank" value="repeaters">Repeaters</mdui-list-item>
+            </mdui-list>
+        </mdui-card>
+    </mdui-dropdown>
 
+    <mdui-fab id="searchButton" icon="search"></mdui-fab>
+</div>
+
+<div id="emptyMessage" class="pageNotice">
+    <span>No contacts</span>
+    <span>Wait for an advert or add one manually.</span>
+</div>
+
+<mdui-list id="contactList" class="hidden"></mdui-list>

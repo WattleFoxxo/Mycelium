@@ -1,15 +1,30 @@
-import { Dropdown, setColorScheme, setTheme } from "./libs/mdui/mdui.js";
-import { WebBleConnection, WebSerialConnection, Constants } from "./libs/meshcore/index.js";
+import { setColorScheme, setTheme, snackbar } from "./libs/mdui/mdui.js";
+import { WebSerialConnection } from "./libs/meshcore/index.js";
 import { Router } from "./router.js";
-import { Helpers } from "./libs/helpers.js";
 import { SimpleDB } from "./storage.js";
+import { CustomElements } from "./customElements.js";
 
 class App {
     device = null;
-    
+    info = null;
+
+    contacts = null;
+    channels = null;
+    messages = {};
+
+    isConnected = false;
+
     constructor() {
-        // document.getElementById("connectButton").addEventListener("click", () => this.requestSerialConnection());
+        document.getElementById("backButton").addEventListener("click", () => {
+            if (document.getElementById("backButton").href) return;
+
+            Router.navagateBack();
+        });
+
         document.getElementById("refreshButton").addEventListener("click", () => Router.handleRoute());
+        document.getElementById("advertZeroHopButton").addEventListener("click", () => this.device?.sendZeroHopAdvert());
+        document.getElementById("advertFloodButton").addEventListener("click", () => this.device?.sendFloodAdvert());
+        document.getElementById("advertClipboardButton").addEventListener("click", () => {});
 
         this.setupSettings();
         this.device = null;
@@ -42,38 +57,77 @@ class App {
             this.device.on("connected", () => this.onConnected("usb"));
             this.device.on("disconnected", () => this.onDisconnected());
         } catch {
+            this.device = null;
+
             document.getElementById("radioIndercator").removeAttribute("loading");
         }
     }
 
+    async disconnect() {
+        this.device.close();
+        this.device.emit("disconnected", {});;
+    }
+
     async onConnected(method) {
+        this.isConnected = true;
         this.info = await this.device.getSelfInfo();
-        console.log(this.info);
-        console.log(this.device);
+        this.contacts = await this.device.getContacts();
+
+        console.log(this);
 
         // document.getElementById("radioIndercatorIcon").name = method;
         document.getElementById("radioIndercatorName").innerText = `Connected`;
         document.getElementById("radioIndercator").removeAttribute("loading");
         document.getElementById("radioIndercator").removeAttribute("disabled");
-
-        const contacts = await this.device.getContacts();
-
-        console.log(contacts);
-
-        for(const contact of contacts) {
-            console.log(`Contact: ${contact.advName}`);
-        }
-
+        
         Router.handleRoute();
+        CustomElements.radioOnly();
     }
 
     async onDisconnected() {
+        this.isConnected = false;
         this.device = null;
+
+        // const elements = document.querySelectorAll("[radio-only]");
+        // const isConnected = !!this.device;
+        // for (const element of elements) {
+        //     elements.setAttribute("disabled", isConnected.toString());
+        // }
 
         // document.getElementById("radioIndercatorIcon").name = "signal_disconnected";
         document.getElementById("radioIndercatorName").innerText = "Disconnected";
         document.getElementById("radioIndercator").removeAttribute("loading");
         document.getElementById("radioIndercator").setAttribute("disabled", "true");
+
+        CustomElements.radioOnly();
+    }
+
+    async trace(path) {
+        snackbar({
+            message: `Sent ping`,
+            autoCloseDelay: 1000,
+            closeOnOutsideClick: true
+        });
+
+        const start = performance.now();
+
+        try {
+            const result = await this.device?.tracePath(path);
+            const latency = Math.round(performance.now() - start);
+
+            const hexString = new Uint8Array(result.pathHashes).toHex();
+            const resultPath = (hexString.match(/.{1,2}/g) || []).map(x => `(${x})`);
+
+            snackbar({
+                message: `Ping Successful: (${latency}ms) You (${new Uint8Array([app.info.publicKey[0]]).toHex()}) -> ${resultPath.join(" -> ")} -> You (${new Uint8Array([app.info.publicKey[0]]).toHex()})`,
+                closeOnOutsideClick: true
+            });
+        } catch (e) {
+            snackbar({
+                message: `Ping Failed: Timeout`,
+                closeOnOutsideClick: true
+            });
+        }
     }
 }
 

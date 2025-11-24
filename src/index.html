@@ -37,19 +37,35 @@
                     <mdui-dropdown stay-open-on-click>
                         <mdui-button-icon icon="more_vert" slot="trigger"></mdui-button-icon>
                         <mdui-menu submenu-trigger="click">
-                            <mdui-menu-item id="refreshButton">Refresh</mdui-menu-item>
-                            <mdui-menu-item submenu>
-                                Advert
-                                <mdui-menu-item id="advertZeroHotButton" slot="submenu">Zero Hop</mdui-menu-item>
-                                <mdui-menu-item id="advertButton" slot="submenu">Flood</mdui-menu-item>
-                                <mdui-menu-item id="advertButton" slot="submenu">Clipboard</mdui-menu-item>
+                            <mdui-menu-item id="refreshButton">
+                                <mdui-icon name="refresh" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                                Refresh
                             </mdui-menu-item>
-                            <mdui-menu-item href="#settings?foucus=about">About</mdui-menu-item>
+                            <mdui-menu-item radio-only submenu>
+                                <mdui-icon name="campaign" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                                Advert
+                                <mdui-menu-item id="advertZeroHopButton" slot="submenu">
+                                    <mdui-icon name="connect_without_contact" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                                    Zero Hop
+                                </mdui-menu-item>
+                                <mdui-menu-item id="advertFloodButton" slot="submenu">
+                                    <mdui-icon name="cell_tower" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                                    Flood
+                                </mdui-menu-item>
+                                <mdui-menu-item disabled id="advertClipboardButton" slot="submenu">
+                                    <mdui-icon name="content_copy" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                                    Clipboard
+                                </mdui-menu-item>
+                            </mdui-menu-item>
+                            <mdui-menu-item href="#settings?foucus=about">
+                                <mdui-icon name="info" class="material-symbols-outlined" slot="icon"></mdui-icon>
+                                About
+                            </mdui-menu-item>
                         </mdui-menu>
                     </mdui-dropdown>
                 </mdui-top-app-bar>
-            </div>
-            
+            </div> 
+            <!-- network_ping -->
             <div id="appContent" class="app-content"></div>
 
             <div class="nav-bar-continer">

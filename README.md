@@ -4,12 +4,12 @@ A (soon to be) feature-rich app for messaging on meshcore networks while maintin
 ## Todo
 *Alot of this is dependent on mycelium.js development*
 ***Basics***
-- [ ] Radio connection settings
+- [x] Radio connection settings
 - [ ] Radio configeration settings
 - [ ] Remote node configeration
 - [ ] Channel messaging
 - [ ] Direct messaging
-- [ ] Map view
+- [x] Map view
 - [ ] Traceroute
 - [ ] Route setting
 
@@ -17,7 +17,6 @@ A (soon to be) feature-rich app for messaging on meshcore networks while maintin
 - [ ] Markdown support
 - [ ] GPS Forwarding
 - [ ] Live GPS polling
-- [ ] Multi radio support
 - [ ] Userscripts
 - [ ] File and image sharing (Zero hop only *for now*)
 - [ ] Codec2 voice messages
@@ -26,6 +25,7 @@ A (soon to be) feature-rich app for messaging on meshcore networks while maintin
 - [ ] Message editing
 - [ ] Message deleting
 - [ ] Profile pictures
+- [ ] Multi radio support
 
 ## Useful links
 
