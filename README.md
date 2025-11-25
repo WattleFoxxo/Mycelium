@@ -1,4 +1,4 @@
-# SlippyApp
+# Mycelium
  PWA app for Meshtastic
 
 # Useful links
@@ -8,5 +8,5 @@
 - [Meshtastic JS Docs](https://js.meshtastic.org/)
 
 ### Deployments
-- [Slippy Main](https://slippy.wattlefoxxo.au/)
-- [Slippy Dev](https://slippydev.wattlefoxxo.au/)
+- [Mycelium Main](https://slippy.wattlefoxxo.au/)
+- [Mycelium Dev](https://slippydev.wattlefoxxo.au/)
