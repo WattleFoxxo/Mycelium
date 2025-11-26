@@ -97,26 +97,22 @@ export default class Contacts {
     static setupContactButtons(contact, contactItem) {
         const lat = Helpers.toSigned32(contact.advLat) / 1e6;
         const lon = Helpers.toSigned32(contact.advLon) / 1e6;
-        const onClickUrl = (contact.type === 1) ?
-            `#message?id=${contact.publicKey.toHex()}`
-            : `#details?id=${contact.publicKey.toHex()}`;
 
         contactItem.getElementById("pingButton").disabled = (contact.type !== 2 && contact.type !== 3);
+        contactItem.getElementById("viewOnMapButton").disabled = (lat === 0 && lon === 0);        
+        contactItem.getElementById("detailsButton").href = `#details?id=${contact.publicKey.toHex()}`;
         contactItem.getElementById("pingButton").addEventListener("click", () => app.trace([new Uint8Array(contact.publicKey)[0]]));
-        
-        contactItem.getElementById("viewOnMapButton").disabled = (lat === 0 && lon === 0);
-        contactItem.getElementById("viewOnMapButton").addEventListener("click", () => {
-            window.location = `#maps?lat=${lat}&lon=${lon}`;
-        },);
+        contactItem.getElementById("moreButton").addEventListener("click", (event) => event.stopPropagation());
 
-                        
         contactItem.getElementById("listItem").addEventListener("click", (event) => {
-
+            window.location = (contact.type === 1) ?
+            `#message?id=${contact.publicKey.toHex()}`
+            : `#details?id=${contact.publicKey.toHex()}`;
         });
 
-        // contactItem.getElementById("listItem").href  = onClickUrl;
-        contactItem.getElementById("detailsButton").href = `#details?id=${contact.publicKey.toHex()}`;
-
+        contactItem.getElementById("viewOnMapButton").addEventListener("click", () => {
+            window.location = `#maps?lat=${lat}&lon=${lon}`;
+        });
     }
 
     static cleanup() {
