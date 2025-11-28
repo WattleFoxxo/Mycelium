@@ -35,4 +35,4 @@ A (soon to be) feature-rich app for messaging on meshcore networks while maintin
 - [Mycelium.js](https://github.com/WattleFoxxo/mycelium.js)
 
 ### Deployments
-- None right now
+[github.io main](https://wattlefoxxo.github.io/Mycelium/)
