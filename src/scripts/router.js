@@ -1,15 +1,19 @@
 import { CustomElements } from "./customElements.js";
 
 export class Router {
-    static homeLocation;
+    static defaultLocation;
     static basePath;
 
-    static init(homeLocation) {
-        this.homeLocation = homeLocation
+    static init(defaultLocation) {
+        this.defaultLocation = defaultLocation
         this.basePath = window.location.pathname;
 
-        window.addEventListener("hashchange", () => Router.handleRoute(), true);
+        if (!location.hash) {
+            location.hash = defaultLocation;
+        }
+        
         this.handleRoute();
+        window.addEventListener("hashchange", () => Router.handleRoute(), true);
     }
 
     static handleRoute() {
@@ -70,7 +74,7 @@ export class Router {
             } else {
                 // Custom back button
                 backButton.classList.remove("hidden");
-                backButton.href = routeSettings.getAttribute("backbutton") || homeLocation;
+                backButton.href = routeSettings.getAttribute("backbutton") || this.defaultLocation;
             }
         }
 
@@ -104,6 +108,7 @@ export class Router {
             console.error(log);
 
             document.getElementById("errorLog").innerText = log;
+            document.getElementById("returnToAppButton").href = this.defaultLocation;
         } catch (error) {
             console.error(error);
         }
