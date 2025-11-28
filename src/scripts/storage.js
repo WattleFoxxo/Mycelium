@@ -1,27 +1,40 @@
 
 export class SimpleDB {
     constructor(
-        storeName,
-        version = 1,
-        dbName = "app_data"
+        dbName,
+        version,
+        stores,
     ) {
-        this.storeName = storeName;
         this.dbName = dbName;
         this.version = version;
+        this.stores = stores;
         this.db = null;
     }
 
-    async _open() {
+    async open() {
         if (this.db) return this.db;
 
         this.db = await new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, this.version);
 
-            request.onupgradeneeded = () => {
-                const db = request.result;
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
 
-                if (!db.objectStoreNames.contains(this.storeName)) {
-                    db.createObjectStore(this.storeName);
+                for (const [storeName, config] of Object.entries(this.stores)) {
+                    if (!db.objectStoreNames.contains(storeName)) {
+                        const store = db.createObjectStore(storeName, {
+                            keyPath: config.keyPath,
+                            autoIncrement: config.autoIncrement ?? false,
+                        });
+
+                        if (Array.isArray(config.indexes)) {
+                            for (const index of config.indexes) {
+                                store.createIndex(index.name, index.keyPath, {
+                                    unique: index.unique ?? false
+                                });
+                            }
+                        }
+                    }
                 }
             }
 
@@ -32,61 +45,108 @@ export class SimpleDB {
         return this.db;
     }
 
-    async _transaction(mode, callback) {
-        const db = await this._open();
+    async transaction(store, mode) {
+        const db = await this.open();
+        return db.transaction(store, mode).objectStore(store);
+    }
+
+    async get(store, key) {
+        const objectStore = await this.transaction(store, "readonly");
 
         return new Promise((resolve, reject) => {
-            const transition = db.transaction(this.storeName, mode);
-            const store = transition.objectStore(this.storeName);
-            const result = callback(store);
+            const request = objectStore.get(key);
 
-            transition.oncomplete = () => resolve(result);
-            transition.onerror = () => reject(transition.error);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
         });
     }
 
-    async get(key) {
-        return this._transaction("readonly", store => {
-            return new Promise((resolve, reject) => {
-                const request = store.get(key);
+    async getAll(store) {
+        const objectStore = await this.transaction(store, "readonly");
 
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
+        return new Promise((resolve, reject) => {
+            const request = objectStore.getAll();
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
         });
     }
 
-    async set(key, value) {
-        return this._transaction("readwrite", store => store.put(value, key));
-    }
+    async getByIndex(store, index, value) {
+        const objectStore = await this.transaction(store, "readonly");
+        const indexObject = objectStore.index(index);
 
-    async delete(key) {
-        return this._transaction("readwrite", store => store.delete(key));
-    }
+        return new Promise((resolve, reject) => {
+            const results = [];
+            const request = indexObject.openCursor(IDBKeyRange.only(value));
 
-    async list() {
-        return this._transaction("readonly", store => {
-            return new Promise((resolve, reject) => {
-                const request = store.getAll();
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
 
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
+                if (cursor) {
+                    results.push(cursor.value);
+                    cursor.continue();
+                } else {
+                    resolve(results);
+                }
+            };
+
+            request.onerror = () => reject(request.error);
         });
     }
 
-    async clear() {
-        return this._transaction("readwrite", store => store.clear());
+    async has(store, key) {
+         const objectStore = await this.transaction(store, "readonly");
+
+        return new Promise((resolve, reject) => {
+            const request = objectStore.get(key);
+
+            request.onsuccess = () => resolve(request.result !== undefined);
+            request.onerror = () => reject(request.error);
+        });
     }
 
-    async has(key) {
-        return this._transaction("readonly", store => {
-            return new Promise((resolve, reject) => {
-                const request = store.get(key);
+    async add(store, data) {
+        const objectStore = await this.transaction(store, "readwrite");
 
-                request.onsuccess = () => resolve(request.result !== undefined);
-                request.onerror = () => reject(request.error);
-            });
+        return new Promise((resolve, reject) => {
+            const request = objectStore.add(data);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async put(store, data) {
+        const objectStore = await this.transaction(store, "readwrite");
+
+        return new Promise((resolve, reject) => {
+            const request = objectStore.put(data);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async delete(store, id) {
+        const objectStore = await this.transaction(store, "readwrite");
+
+        return new Promise((resolve, reject) => {
+            const request = objectStore.delete(id);
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async clear(store) {
+        const objectStore = await this.transaction(store, "readwrite");
+
+        return new Promise((resolve, reject) => {
+            const request = objectStore.clear();
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
         });
     }
 }
