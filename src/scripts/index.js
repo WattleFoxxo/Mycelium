@@ -1,27 +1,49 @@
 import { setColorScheme, setTheme, snackbar } from "./libs/mdui/mdui.js";
-import { WebSerialConnection } from "./libs/meshcore/index.js";
+import { WebSerialConnection, Constants } from "./libs/meshcore/index.js";
 import { Router } from "./router.js";
 import { SimpleDB } from "./storage.js";
 import { CustomElements } from "./customElements.js";
 
 class App {
-    device = null;
-    info = null;
+    db;
 
-    contacts = null;
-    channels = null;
-    messages = {};
+    device;
+    info;
+    contacts;
 
     isConnected = false;
 
     constructor() {
+        this.db = new SimpleDB("appData", 1, {
+            settings: {
+                keyPath: "key",
+                indexes: []
+            },
+            contacts: {
+                keyPath: "publicKey",
+                indexes: []
+            },
+            messages: {
+                keyPath: "id",
+                autoIncrement: true,
+                indexes: [
+                    { name: "publicKey", keyPath: "publicKey" }
+                ]
+            },
+        });
+
         document.getElementById("backButton").addEventListener("click", () => {
             if (document.getElementById("backButton").href) return;
 
             Router.navagateBack();
         });
 
-        document.getElementById("refreshButton").addEventListener("click", () => Router.handleRoute());
+        document.getElementById("refreshButton").addEventListener("click", () => {
+            if (this.isConnected) async () => this.contacts = await this.device.getContacts();
+
+            Router.handleRoute()
+        });
+
         document.getElementById("advertZeroHopButton").addEventListener("click", () => this.device?.sendZeroHopAdvert());
         document.getElementById("advertFloodButton").addEventListener("click", () => this.device?.sendFloodAdvert());
         document.getElementById("advertClipboardButton").addEventListener("click", () => {});
@@ -31,7 +53,6 @@ class App {
     }
 
     async setupSettings() {
-        const settings = new SimpleDB("settings");
         const colourSchemes = {
             "red": "#ffb3a9",
             "purple": "#f9aaff",
@@ -41,11 +62,27 @@ class App {
         }
         
         // Set the defaults if needed
-        if (!await settings.has("theme")) await settings.set("theme", "auto");
-        if (!await settings.has("colourScheme")) await settings.set("colourScheme", "blue");
+        if (!await this.db.has("settings", "theme")) {
+            await this.db.add("settings", { key: "theme", value: "auto" });
+        }
 
-        setTheme(await settings.get("theme"));
-        setColorScheme(colourSchemes[await settings.get("colourScheme")]);
+        if (!await this.db.has("settings", "scheme")) {
+            await this.db.add("settings", { key: "scheme", value: "blue" });
+        }
+
+        if (!await this.db.has("settings", "contactsSort")) {
+            await this.db.add("settings", { key: "contactsSort", value: "Recent" });
+        }
+
+        if (!await this.db.has("settings", "contactsFilter")) {
+            await this.db.add("settings", { key: "contactsFilter", value: ["pinned", "users", "roomservers", "repeaters"] });
+        }
+
+        const theme = await this.db.get("settings", "theme");
+        const scheme = await this.db.get("settings", "scheme");
+        
+        setTheme(theme.value);
+        setColorScheme(colourSchemes[scheme.value]);
     }
 
     async requestSerialConnection() {
@@ -54,8 +91,9 @@ class App {
         try {
             this.device = await WebSerialConnection.open();
 
-            this.device.on("connected", () => this.onConnected("usb"));
+            this.device.on("connected", () => this.onConnected());
             this.device.on("disconnected", () => this.onDisconnected());
+            this.device.on(Constants.PushCodes.MsgWaiting, () => this.handleMessage());
         } catch {
             this.device = null;
 
@@ -68,14 +106,13 @@ class App {
         this.device.emit("disconnected", {});;
     }
 
-    async onConnected(method) {
+    async onConnected() {
         this.isConnected = true;
         this.info = await this.device.getSelfInfo();
         this.contacts = await this.device.getContacts();
 
         console.log(this);
 
-        // document.getElementById("radioIndercatorIcon").name = method;
         document.getElementById("radioIndercatorName").innerText = `Connected`;
         document.getElementById("radioIndercator").removeAttribute("loading");
         document.getElementById("radioIndercator").removeAttribute("disabled");
@@ -88,13 +125,6 @@ class App {
         this.isConnected = false;
         this.device = null;
 
-        // const elements = document.querySelectorAll("[radio-only]");
-        // const isConnected = !!this.device;
-        // for (const element of elements) {
-        //     elements.setAttribute("disabled", isConnected.toString());
-        // }
-
-        // document.getElementById("radioIndercatorIcon").name = "signal_disconnected";
         document.getElementById("radioIndercatorName").innerText = "Disconnected";
         document.getElementById("radioIndercator").removeAttribute("loading");
         document.getElementById("radioIndercator").setAttribute("disabled", "true");
@@ -127,6 +157,27 @@ class App {
                 message: `Ping Failed: Timeout`,
                 closeOnOutsideClick: true
             });
+        }
+    }
+
+    async handleMessage() {
+        const waitingMessages = await this.device.getWaitingMessages();
+
+        for (const message of waitingMessages){
+            console.log(message);
+            
+            if (message.contactMessage) {
+                const contact = await this.device.findContactByPublicKeyPrefix(message.contactMessage.pubKeyPrefix);
+
+                await this.db.add("messages", {
+                    publicKey: contact.publicKey,
+                    message: message.contactMessage,
+                    timestamp: Date.now()
+                });
+
+            } else if (message.channelMessage) {
+
+            }
         }
     }
 }

@@ -1,14 +1,8 @@
 import { app } from "../index.js";
 import { setTheme, setColorScheme } from "../libs/mdui/mdui.js";
-import { SimpleDB } from "../storage.js";
 
 export default class Settings {
-    static settingsStore;
-
     static async init() {
-        this.settingsStore = new SimpleDB("settings");
-
-        console.log(app);
         this.handleConnectionChange();
 
         document.getElementById("connectRadio").addEventListener("click", () => this.connectDissconnectRadio());
@@ -16,8 +10,8 @@ export default class Settings {
         document.getElementById("theme").addEventListener("change", (event) => this.handleThemeChange(event.target.value));
         document.getElementById("colourScheme").addEventListener("change", (event) => this.handleColourSchemeChange(event.target.value));
 
-        document.getElementById("theme").value = await this.settingsStore.get("theme");
-        document.getElementById("colourScheme").value = await this.settingsStore.get("colourScheme");
+        document.getElementById("theme").value = (await app.db.get("settings", "theme")).value;
+        document.getElementById("colourScheme").value = (await app.db.get("settings", "scheme")).value;
 
         app.device?.on("connected", () => this.handleConnectionChange());
         app.device?.on("disconnected", () => this.handleConnectionChange());
@@ -40,7 +34,8 @@ export default class Settings {
 
 
     static async handleThemeChange(value) {
-        await this.settingsStore.set("theme", value);
+        await app.db.put("settings", { key: "theme", value: value });
+
         setTheme(value);
     }
 
@@ -52,8 +47,9 @@ export default class Settings {
             "green": "#77db76",
             "yellow": "#dac812"
         }
+
+        await app.db.put("settings", { key: "scheme", value: value });
         
-        await this.settingsStore.set("colourScheme", value);
         setColorScheme(colourSchemes[value]);
     }
 

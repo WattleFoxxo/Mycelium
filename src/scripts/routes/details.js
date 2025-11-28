@@ -1,5 +1,4 @@
 import { app } from "../index.js";
-import { SimpleDB } from "../storage.js";
 import { Helpers } from "../libs/helpers.js";
 
 export default class Details {
@@ -15,7 +14,7 @@ export default class Details {
         document.getElementById("contactInfo").classList.remove("hidden");
 
         const publicKeyHex = contact.publicKey.toHex();
-        const lastHeard = new Date(Number(contact.lastAdvert) * 1e3);
+        const lastHeard = new Date(Number(contact.lastAdvert) * 1000);
         const lat = Helpers.toSigned32(contact.advLat) / 1e6;
         const lon = Helpers.toSigned32(contact.advLon) / 1e6;
 

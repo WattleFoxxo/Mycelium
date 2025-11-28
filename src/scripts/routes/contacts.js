@@ -2,10 +2,19 @@ import { app } from "../index.js";
 import { Helpers } from "../libs/helpers.js";
 
 export default class Contacts {
+    static sortByList;
+    static filterList;
+
     static async init() {
-        document.getElementById("sortByList").addEventListener("change", () => this.updateList());
-        document.getElementById("filterList").addEventListener("change", () => this.updateList());
-        
+        this.sortByList = document.getElementById("sortByList");
+        this.filterList = document.getElementById("filterList");
+
+        this.sortByList.value = (await app.db.get("settings", "contactsSort")).value;
+        this.filterList.value = (await app.db.get("settings", "contactsFilter")).value;
+
+        this.sortByList.addEventListener("change", () => this.updateList());
+        this.filterList.addEventListener("change", () => this.updateList());
+
         await new Promise(resolve => requestAnimationFrame(resolve)); // Wait until everything is renderd
 
         this.updateList();
@@ -13,10 +22,12 @@ export default class Contacts {
 
     static async updateList() {
         let contacts = app.contacts;
-        console.log(contacts);
 
         const contactTemplate = document.getElementById("contactTemplate");
         const contactList = document.getElementById("contactList");
+
+        await app.db.put("settings", { key: "contactsSort", value: this.sortByList.value });
+        await app.db.put("settings", { key: "contactsFilter", value: this.filterList.value });
 
         if (!app.isConnected) {
             document.getElementById("emptyMessage").classList.remove("hidden");
@@ -26,6 +37,7 @@ export default class Contacts {
         }
 
         contacts = this.filterContacts(contacts);
+
         if (contacts.length === 0) return;
 
         document.getElementById("emptyMessage").classList.add("hidden");
@@ -61,7 +73,7 @@ export default class Contacts {
 
     static filterContacts(contacts) {
         // Filter Contacts
-        const filter = document.getElementById("filterList").value;
+        const filter = this.filterList.value;
         const filterMap = {
             "pinned": -1,
             "users": 1,
@@ -76,7 +88,7 @@ export default class Contacts {
         }
 
         // Sort Contacts
-        const sortMode = document.getElementById("sortByList").value;
+        const sortMode = this.sortByList.value;
         switch (sortMode) {
             case "name":
                 contacts.sort((a, b) => a.advName.toLowerCase().localeCompare(b.advName.toLowerCase()));

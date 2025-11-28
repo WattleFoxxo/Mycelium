@@ -26,6 +26,19 @@ export class CustomElements {
         for (const list of lists) {
             list.value = list.getAttribute("value");
 
+            Object.defineProperty(list, "value", {
+                get() {
+                    return this._value;
+                },
+                set(value) {
+                    this._value = value;
+                    this.setAttribute("value", value);
+                    updateListIcons(this);
+
+                    this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+                }
+            });
+
             updateListIcons(list);
 
             list.addEventListener("click", (event) => {
@@ -33,19 +46,12 @@ export class CustomElements {
                 if (!item) return;
 
                 list.value = item.getAttribute("value");
-
-                list.setAttribute("value", list.value);
-                updateListIcons(list);
-
-                list.dispatchEvent(new CustomEvent("change", {
-                    bubbles: true
-                }));
             });
         }
     }
 
     static async checkBoxList() {
-        const lists = document.querySelectorAll("mdui-list[checbox-list]");
+        const lists = document.querySelectorAll("mdui-list[checkbox-list]");
 
         const updateListIcons = (list) => {
             list.querySelectorAll("mdui-list-item").forEach((item) => {
@@ -61,28 +67,34 @@ export class CustomElements {
         }
 
         for (const list of lists) {
-            list.value = list.getAttribute("value").split(",");
+            list._value = list.getAttribute("value")?.split(",") || [];
+
+            Object.defineProperty(list, "value", {
+                get() {
+                    return this._value;
+                },
+                set(value) {
+                    this._value = value;
+                    this.setAttribute("value", value.join(","));
+                    updateListIcons(this);
+
+                    this.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+                }
+            });
 
             updateListIcons(list);
 
             list.addEventListener("click", (event) => {
                 const item = event.target.closest("mdui-list-item");
                 if (!item) return;
-
+                
                 const value = item.getAttribute("value");
 
                 if (list.value.includes(value)) {
-                    list.value.splice(list.value.indexOf(value), 1);
+                    list.value = list.value.filter(v => v !== value);
                 } else {
-                    list.value.push(value);
+                    list.value = [...list.value, value];
                 }
-
-                list.setAttribute("value", list.value.join(","));
-                updateListIcons(list);
-
-                list.dispatchEvent(new CustomEvent("change", {
-                    bubbles: true
-                }));
             });
         }
     }

@@ -1,0 +1,87 @@
+<route-settings
+    title="Message"
+    backbutton="true"
+    navbar="false"
+    titlebar="true"
+></route-settings>
+
+<style>
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .message-list {
+        flex: 1;
+        overflow-y: auto;
+        /* display: flex; */
+        /* flex-direction: column-reverse; */
+    }
+
+    .message-timestamp {
+        color: rgb(var(--mdui-color-on-surface-variant));
+        font-size: var(--mdui-typescale-body-medium-size);
+        font-weight: var(--mdui-typescale-body-medium-weight);
+        letter-spacing: var(--mdui-typescale-body-medium-tracking);
+        line-height: var(--mdui-typescale-body-medium-line-height);
+    }
+
+    .message-content {
+        color: rgb(var(--mdui-color-on-surface));
+    }
+
+    .input-bar {
+        bottom: 0;
+        background: var(--mdui-color-background);
+        padding: 0.5rem;
+    }
+
+    .message-content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
+        font-size: var(--mdui-typescale-body-large-size);
+    }
+
+    .contact-name {
+        font-size: large;
+        font-weight: 500;
+    }
+
+</style>
+
+<template id="messageTemplate">
+    <mdui-list-item alignment="start">
+        <mdui-avatar id="contactAvatar" slot="icon"></mdui-avatar>
+        <span id="contactName" class="contact-name"></span>
+        <span id="messageTimeStamp" class="message-timestamp"></span>
+        <span id="messageContent" class="message-content" slot="description"></span>
+    </mdui-list-item>
+</template>
+
+<div class="chat-container">
+    <div class="message-list">
+        <mdui-list id="messageList" class="hidden"></mdui-list>
+    </div>
+
+
+    <div id="emptyMessage" class="pageNotice">
+        <span>No messages</span>
+        <span>Remeber both of you have to be added as a contact.</span>
+    </div>
+
+
+    <div class="input-bar">
+        <mdui-text-field
+            autosize
+            placeholder="Direct message..."
+            maxlength="128"
+            counter variant="outlined"
+            radio-only
+        >
+            <mdui-button-icon disabled slot="icon" icon="add"></mdui-button-icon>
+            <mdui-button-icon slot="end-icon" icon="send"></mdui-button-icon>
+        </mdui-text-field>
+    </div>
+</div>
