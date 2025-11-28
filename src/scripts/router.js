@@ -1,7 +1,16 @@
 import { CustomElements } from "./customElements.js";
 
 export class Router {
-    static homeLocation = "#contacts";
+    static homeLocation;
+    static basePath;
+
+    static init(homeLocation) {
+        this.homeLocation = homeLocation
+        this.basePath = window.location.pathname;
+
+        window.addEventListener("hashchange", () => Router.handleRoute(), true);
+        this.handleRoute();
+    }
 
     static handleRoute() {
         const hash = location.hash.slice(1);
@@ -28,7 +37,7 @@ export class Router {
             this.currentRouteModule.cleanup();
         }
 
-        const responcse = await fetch(`/routes/${route}.html`);
+        const responcse = await fetch(`${this.basePath}routes/${route}.html`);
         if (!responcse.ok) {
             if (route == "error") throw new Error("/routes/error.html is missing!", );
             this.panic(`Fetch error: 404 Not found\nCould not fetch "/routes/${route}.html"`);
@@ -66,7 +75,7 @@ export class Router {
         }
 
         try {
-            const module = await import(`/scripts/routes/${route}.js`);
+            const module = await import(`${this.basePath}scripts/routes/${route}.js`);
             this.currentPageModule = module.default;
             this.currentPageModule.init?.(params);
         } catch (error) {
@@ -101,5 +110,4 @@ export class Router {
     }
 }
 
-window.addEventListener("hashchange", () => Router.handleRoute(), true);
-Router.handleRoute();
+Router.init("#contacts");
