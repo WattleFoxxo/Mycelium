@@ -1,4 +1,4 @@
-# SlippyApp
+# Mycelium
  PWA app for Meshtastic
 
 # Useful links
