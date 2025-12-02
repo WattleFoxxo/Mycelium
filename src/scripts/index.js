@@ -4,9 +4,8 @@ import { Router } from "./router.js";
 import { SimpleDB } from "./storage.js";
 import { CustomElements } from "./customElements.js";
 
-class App {
+class App extends EventTarget {
     db;
-
     device;
     info;
     contacts;
@@ -14,6 +13,8 @@ class App {
     isConnected = false;
 
     constructor() {
+        super();
+
         this.db = new SimpleDB("appData", 1, {
             settings: {
                 keyPath: "key",
@@ -103,7 +104,9 @@ class App {
 
     async disconnect() {
         this.device.close();
-        this.device.emit("disconnected", {});;
+        this.device.emit("disconnected", {});
+
+        this.dispatchEvent(new CustomEvent("disconnected"));
     }
 
     async onConnected() {
@@ -119,6 +122,8 @@ class App {
         
         Router.handleRoute();
         CustomElements.radioOnly();
+
+        this.dispatchEvent(new CustomEvent("connected"));
     }
 
     async onDisconnected() {
@@ -130,6 +135,8 @@ class App {
         document.getElementById("radioIndercator").setAttribute("disabled", "true");
 
         CustomElements.radioOnly();
+
+        this.dispatchEvent(new CustomEvent("disconnected"));
     }
 
     async trace(path) {
@@ -163,7 +170,7 @@ class App {
     async handleMessage() {
         const waitingMessages = await this.device.getWaitingMessages();
 
-        for (const message of waitingMessages){
+        for (const message of waitingMessages) {
             console.log(message);
             
             if (message.contactMessage) {
@@ -174,10 +181,11 @@ class App {
                     message: message.contactMessage,
                     timestamp: Date.now()
                 });
-
             } else if (message.channelMessage) {
 
             }
+
+            this.dispatchEvent(new CustomEvent("message", message));
         }
     }
 }

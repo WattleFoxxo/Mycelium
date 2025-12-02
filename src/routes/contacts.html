@@ -94,20 +94,20 @@ mdui-dropdown[slot="end-icon"].mdui-dropdown-open ~ * {
     <mdui-dropdown stay-open-on-click placement="left-end">
         <mdui-fab id="filterButton" slot="trigger" variant="surface" icon="filter_list"></mdui-fab>
         <mdui-card class="multi-dropdown">
-            <mdui-list id="sortByList" radio-list value="recent">
+            <radio-list id="sortByList" value="recent">
                 <mdui-list-subheader>Order</mdui-list-subheader>
-                <mdui-list-item icon="radio_button_unchecked" value="name">Name</mdui-list-item>
-                <mdui-list-item icon="radio_button_unchecked" value="recent">Recent</mdui-list-item>
-                <mdui-list-item icon="radio_button_unchecked" value="advert">Last Advert</mdui-list-item>
-            </mdui-list>
+                <mdui-list-item value="name">Name</mdui-list-item>
+                <mdui-list-item value="recent">Recent</mdui-list-item>
+                <mdui-list-item value="advert">Last Advert</mdui-list-item>
+            </radio-list>
 
-            <mdui-list id="filterList" checkbox-list value="pinned,users,roomservers,repeaters">
+            <check-list id="filterList" value="pinned,users,roomservers,repeaters">
                 <mdui-list-subheader>Filter</mdui-list-subheader>
-                <mdui-list-item disabled icon="check_box_outline_blank" value="pinned">Favorite</mdui-list-item>
-                <mdui-list-item icon="check_box_outline_blank" value="users">Users</mdui-list-item>
-                <mdui-list-item icon="check_box_outline_blank" value="roomservers">Room Servers</mdui-list-item>
-                <mdui-list-item icon="check_box_outline_blank" value="repeaters">Repeaters</mdui-list-item>
-            </mdui-list>
+                <mdui-list-item disabled value="pinned">Favorite</mdui-list-item>
+                <mdui-list-item value="users">Users</mdui-list-item>
+                <mdui-list-item value="roomservers">Room Servers</mdui-list-item>
+                <mdui-list-item value="repeaters">Repeaters</mdui-list-item>
+            </check-list>
         </mdui-card>
     </mdui-dropdown>
 
