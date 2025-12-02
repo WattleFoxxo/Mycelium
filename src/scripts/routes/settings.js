@@ -2,7 +2,7 @@ import { app } from "../index.js";
 import { setTheme, setColorScheme } from "../libs/mdui/mdui.js";
 
 export default class Settings {
-    static async init() {
+    static async init(parameters) {
         this.handleConnectionChange();
 
         document.getElementById("connectRadio").addEventListener("click", () => this.connectDissconnectRadio());

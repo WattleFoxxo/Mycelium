@@ -5,7 +5,7 @@ export default class Contacts {
     static sortByList;
     static filterList;
 
-    static async init() {
+    static async init(parameters) {
         this.sortByList = document.getElementById("sortByList");
         this.filterList = document.getElementById("filterList");
 

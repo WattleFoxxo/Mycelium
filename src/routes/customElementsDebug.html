@@ -1,0 +1,41 @@
+<route-settings
+    title="customElementsDebug"
+    backbutton="true"
+    navbar="true"
+    titlebar="true"
+></route-settings>
+
+<style>
+    #testContainer {
+        padding: 1rem;
+    }
+</style>
+
+<div id="testContainer">
+    <pre id="timeStampLabel">&lt;time-stamp value="0"&gt;</pre>
+    <time-stamp id="timeStamp" value="0"></time-stamp>
+
+    <br><br>
+    <pre id="timeStampLabel1">&lt;time-stamp value="0"&gt;</pre>
+    <time-stamp id="timeStamp1" type="datetime" value="0"></time-stamp>
+
+    <br><br><br>
+    <pre id="radioListLabel">&lt;radio-list value="one"&gt;</pre>
+    <radio-list id="radioList" value="one">
+        <mdui-list-subheader>label</mdui-list-subheader>
+        <mdui-list-item value="one">One</mdui-list-item>
+        <mdui-list-item value="two">Two</mdui-list-item>
+        <mdui-list-item value="three">Three</mdui-list-item>
+    </radio-list>
+
+    <br><br><br>
+    <pre id="checkListLabel">&lt;check-list value="one,two"&gt;</pre>
+    <check-list id="checkList" value="one,two">
+        <mdui-list-subheader>label</mdui-list-subheader>
+        <mdui-list-item value="one">One</mdui-list-item>
+        <mdui-list-item value="two">Two</mdui-list-item>
+        <mdui-list-item value="three">Three</mdui-list-item>
+    </radio-list>
+</div>
+
+
