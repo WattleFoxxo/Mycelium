@@ -20,7 +20,7 @@ export default class Contacts {
         const messages = await app.db.getByIndex("messages", "publicKey", targeCtontact.publicKey);
         console.log(messages);
 
-        if (!messages) return;
+        if (!messages || messages?.length === 0) return;
 
         const messageTemplate = document.getElementById("messageTemplate");
         const messageList = document.getElementById("messageList");

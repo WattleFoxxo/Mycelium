@@ -1,5 +1,6 @@
 import { app } from "../index.js";
-import { setTheme, setColorScheme } from "../libs/mdui/mdui.js";
+import { setTheme, setColorScheme, confirm } from "../libs/mdui/mdui.js";
+import { Router } from "../router.js";
 
 export default class Settings {
     static async init(parameters) {
@@ -12,6 +13,10 @@ export default class Settings {
 
         document.getElementById("theme").value = (await app.db.get("settings", "theme")).value;
         document.getElementById("colourScheme").value = (await app.db.get("settings", "scheme")).value;
+
+        document.getElementById("deleteAllMessages").addEventListener("click", () => this.deleteAllMessages());
+        document.getElementById("deleteAllData").addEventListener("click", () => this.deleteAllData());
+
 
         app.device?.on("connected", () => this.handleConnectionChange());
         app.device?.on("disconnected", () => this.handleConnectionChange());
@@ -75,6 +80,42 @@ export default class Settings {
                 element.defaultValue = element.value;
             });
         }
+    }
+
+    static deleteAllMessages() {
+        confirm({
+            headline: "Are you sure?",
+            description: "This will delete all your messages.",
+            confirmText: "Delete Everything",
+            cancelText: "Cancel",
+            onConfirm: async () => {
+                try {
+                    await app.db.clear("messages");
+                } catch (error) {
+                    console.warn(error);
+                }
+            }
+        });
+    }
+
+    static deleteAllData() {
+        confirm({
+            headline: "Are you sure?",
+            description: "This will delete everything. Data stored on your radio wont be lost.",
+            confirmText: "Delete Everything",
+            cancelText: "Cancel",
+            onConfirm: async () => {
+                try {
+                    await app.db.clear("settings");
+                    await app.db.clear("contacts");
+                    await app.db.clear("messages");
+                } catch (error) {
+                    console.warn(error);
+                }
+
+                window.location.reload();
+            }
+        });
     }
 
     static cleanup() {
