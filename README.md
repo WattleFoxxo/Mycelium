@@ -5,13 +5,13 @@ A (soon to be) feature-rich app for messaging on meshcore networks while maintin
 *Alot of this is dependent on mycelium.js development*
 ***Basics***
 - [x] Radio connection settings
-- [ ] Radio configeration settings
+- [ ] Radio configuration settings
 - [ ] Remote node configeration
 - [ ] Channel messaging
-- [ ] Direct messaging
+- [x] Direct messaging
 - [x] Map view
-- [ ] Traceroute
-- [ ] Route setting
+- [x] Traceroute
+- [ ] Setting route
 
 ***Fancy stuff***
 - [ ] Markdown support
