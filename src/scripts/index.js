@@ -1,17 +1,10 @@
 import { setColorScheme, setTheme, snackbar } from "./libs/mdui/mdui.js";
-import { WebSerialConnection, Constants } from "./libs/meshcore/index.js";
+import { WebSerialConnection, Constants, WebBleConnection } from "./libs/meshcore/index.js";
 import { Router } from "./router.js";
 import { SimpleDB } from "./storage.js";
 import { CustomElements } from "./customElements.js";
 
 class App extends EventTarget {
-    db;
-    device;
-    info;
-    contacts;
-
-    isConnected = false;
-
     constructor() {
         super();
 
@@ -33,24 +26,47 @@ class App extends EventTarget {
             },
         });
 
-        document.getElementById("backButton").addEventListener("click", () => {
-            if (document.getElementById("backButton").href) return;
+        this.defineUserInterface();
+        this.setupSettings();
+    }
+
+    // All the messy ui stuff goes here!
+    defineUserInterface() {
+        this.ui = {};
+
+        this.ui.backButton = document.getElementById("backButton");
+        this.ui.refreshButton = document.getElementById("refreshButton");
+
+        this.ui.advertZeroHopButton = document.getElementById("advertZeroHopButton");
+        this.ui.advertFloodButton = document.getElementById("advertFloodButton");
+        this.ui.advertClipboardButton = document.getElementById("advertClipboardButton");
+
+        this.ui.radioIndercator = document.getElementById("radioIndercator");
+        this.ui.radioIndercatorName = document.getElementById("radioIndercatorName");
+
+        this.ui.backButton.addEventListener("click", () => {
+            if (this.ui.backButton.href) return;
 
             Router.navagateBack();
         });
 
-        document.getElementById("refreshButton").addEventListener("click", () => {
+        this.ui.refreshButton.addEventListener("click", () => {
             if (this.isConnected) async () => this.contacts = await this.device.getContacts();
 
-            Router.handleRoute()
+            Router.handleRoute();
         });
 
-        document.getElementById("advertZeroHopButton").addEventListener("click", () => this.device?.sendZeroHopAdvert());
-        document.getElementById("advertFloodButton").addEventListener("click", () => this.device?.sendFloodAdvert());
-        document.getElementById("advertClipboardButton").addEventListener("click", () => {});
+        this.ui.advertZeroHopButton.addEventListener("click", () => {
+            this.device?.sendZeroHopAdvert();
+        });
 
-        this.setupSettings();
-        this.device = null;
+        this.ui.advertFloodButton.addEventListener("click", () => {
+            this.device?.sendFloodAdvert();
+        });
+
+        this.ui.advertClipboardButton.addEventListener("click", () => {
+            // TODO: Add copy to clipboard
+        });
     }
 
     async setupSettings() {
@@ -62,21 +78,18 @@ class App extends EventTarget {
             "yellow": "#dac812"
         }
         
-        // Set the defaults if needed
-        if (!await this.db.has("settings", "theme")) {
-            await this.db.add("settings", { key: "theme", value: "auto" });
+        const settingsDefaults = {
+            "theme": "auto",
+            "scheme": "blue",
+            "contactsSort": "Recent",
+            "contactsFilter": ["pinned", "users", "roomservers", "repeaters"]
         }
 
-        if (!await this.db.has("settings", "scheme")) {
-            await this.db.add("settings", { key: "scheme", value: "blue" });
-        }
-
-        if (!await this.db.has("settings", "contactsSort")) {
-            await this.db.add("settings", { key: "contactsSort", value: "Recent" });
-        }
-
-        if (!await this.db.has("settings", "contactsFilter")) {
-            await this.db.add("settings", { key: "contactsFilter", value: ["pinned", "users", "roomservers", "repeaters"] });
+        // Set all the defaults if needed
+        for (const [setting, value] of Object.entries(settingsDefaults)) {
+            if (!await this.db.has("settings", setting)) {
+                await this.db.add("settings", { key: setting, value: value });
+            } 
         }
 
         const theme = await this.db.get("settings", "theme");
@@ -86,20 +99,41 @@ class App extends EventTarget {
         setColorScheme(colourSchemes[scheme.value]);
     }
 
-    async requestSerialConnection() {
-        document.getElementById("radioIndercator").setAttribute("loading", "true");
+    async connect(method) {
+        this.ui.radioIndercator.setAttribute("loading", "true");
 
         try {
-            this.device = await WebSerialConnection.open();
+            switch (method) {
+                case "serial":
+                    this.device = await WebSerialConnection.open();
+                    break;
+                case "bluetooth":
+                    try {
+                        this.device = await WebBleConnection.open();
+                    } catch (error) {
+                        this.device = null;
+                        this.ui.radioIndercator.removeAttribute("loading");
 
-            this.device.on("connected", () => this.onConnected());
-            this.device.on("disconnected", () => this.onDisconnected());
-            this.device.on(Constants.PushCodes.MsgWaiting, () => this.handleMessage());
+                        snackbar({
+                            message: "Web Bluetooth is unavailable",
+                            action: "Help",
+                            closeOnOutsideClick: true,
+                            onActionClick: () => {
+                                window.open(
+                                    "https://support.google.com/chrome/answer/6362090",
+                                    "_blank"
+                                );
+                            }
+                        });
+                    }
+                    break;
+            }
         } catch {
             this.device = null;
-
-            document.getElementById("radioIndercator").removeAttribute("loading");
+            this.ui.radioIndercator.removeAttribute("loading");
         }
+
+        this.subscribeEvents();
     }
 
     async disconnect() {
@@ -109,34 +143,13 @@ class App extends EventTarget {
         this.dispatchEvent(new CustomEvent("disconnected"));
     }
 
-    async onConnected() {
-        this.isConnected = true;
-        this.info = await this.device.getSelfInfo();
-        this.contacts = await this.device.getContacts();
+    subscribeEvents() {
+        this.device.on("connected", () => this.handleConnected());
+        this.device.on("disconnected", () => this.handleDisconnected());
+        this.device.on(Constants.PushCodes.MsgWaiting, () => this.handleMessage());
+        this.device.on(Constants.PushCodes.SendConfirmed, () => this.handleMessageAck());
 
-        console.log(this);
-
-        document.getElementById("radioIndercatorName").innerText = `Connected`;
-        document.getElementById("radioIndercator").removeAttribute("loading");
-        document.getElementById("radioIndercator").removeAttribute("disabled");
-        
-        Router.handleRoute();
-        CustomElements.radioOnly();
-
-        this.dispatchEvent(new CustomEvent("connected"));
-    }
-
-    async onDisconnected() {
-        this.isConnected = false;
-        this.device = null;
-
-        document.getElementById("radioIndercatorName").innerText = "Disconnected";
-        document.getElementById("radioIndercator").removeAttribute("loading");
-        document.getElementById("radioIndercator").setAttribute("disabled", "true");
-
-        CustomElements.radioOnly();
-
-        this.dispatchEvent(new CustomEvent("disconnected"));
+        // this.device.on(Constants.PushCodes.NewAdvert, () => this.handleContact()); // when companion is set to manually add contacts
     }
 
     async trace(path) {
@@ -167,6 +180,40 @@ class App extends EventTarget {
         }
     }
 
+    async sendMessage() {
+
+    }
+
+    async handleConnected() {
+        this.isConnected = true;
+        this.info = await this.device.getSelfInfo();
+        this.contacts = await this.device.getContacts();
+
+        console.log(this);
+
+        this.ui.radioIndercatorName.innerText = `Connected`;
+        this.ui.radioIndercator.removeAttribute("loading");
+        this.ui.radioIndercator.removeAttribute("disabled");
+        
+        Router.handleRoute();
+        CustomElements.radioOnly();
+
+        this.dispatchEvent(new CustomEvent("connected"));
+    }
+
+    async handleDisconnected() {
+        this.isConnected = false;
+        this.device = null;
+
+        this.ui.radioIndercatorName.innerText = "Disconnected";
+        this.ui.radioIndercator.removeAttribute("loading");
+        this.ui.radioIndercator.setAttribute("disabled", "true");
+
+        CustomElements.radioOnly();
+
+        this.dispatchEvent(new CustomEvent("disconnected"));
+    }
+
     async handleMessage() {
         const waitingMessages = await this.device.getWaitingMessages();
 
@@ -182,11 +229,21 @@ class App extends EventTarget {
                     timestamp: Date.now()
                 });
             } else if (message.channelMessage) {
-
+                console.log(message);
             }
 
             this.dispatchEvent(new CustomEvent("message", message));
         }
+    }
+
+    async handleContact() {
+        await this.db.add("contacts", {
+            publicKey: contact.publicKey,
+            message: message.contactMessage,
+            timestamp: Date.now()
+        });
+
+        this.dispatchEvent(new CustomEvent("contact", contact));
     }
 }
 

@@ -1,5 +1,5 @@
 import { app } from "../index.js";
-import { setTheme, setColorScheme, confirm } from "../libs/mdui/mdui.js";
+import { setTheme, setColorScheme, confirm, dialog, snackbar } from "../libs/mdui/mdui.js";
 import { Router } from "../router.js";
 
 export default class Settings {
@@ -29,7 +29,27 @@ export default class Settings {
             return;
         }
 
-        app.requestSerialConnection();
+        dialog({
+            headline: "Connect Device",
+            description: "Select your preferred connection method",
+            actions: [
+                {
+                    text: "Cancel"
+                },
+                {
+                    text: "Usb",
+                    onClick: () => {
+                        app.connect("serial");
+                    },
+                },
+                {
+                    text: "Ble",
+                    onClick: () => {
+                        app.connect("bluetooth");
+                    },
+                }
+            ]
+        });
     }
 
     static async handleConnectionChange() {
