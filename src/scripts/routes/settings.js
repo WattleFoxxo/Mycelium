@@ -32,18 +32,19 @@ export default class Settings {
         dialog({
             headline: "Connect Device",
             description: "Select your preferred connection method",
+            stackedActions: true,
             actions: [
                 {
                     text: "Cancel"
                 },
                 {
-                    text: "Usb",
+                    text: "Serial",
                     onClick: () => {
                         app.connect("serial");
                     },
                 },
                 {
-                    text: "Ble",
+                    text: "Bluetooth",
                     onClick: () => {
                         app.connect("bluetooth");
                     },
